@@ -1,5 +1,4 @@
-// config.js
-/** @type {import('./IConfig').IConfig} */
+/** @type {import('@discord-dashboard/core').IConfig} */
 module.exports = {
   server: {
     port: 3000,

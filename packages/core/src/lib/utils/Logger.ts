@@ -36,8 +36,8 @@ export class Logger {
       this.handleLogLevel(ExceptionPriority.INFO, formattedMessage);
     }
 
-    // If saveToFile is true, save the log message to a file
-    if (saveToFile) {
+    // If saveToFile is true and config option allows it, save the log message to a file
+    if (saveToFile && Config.getInstance().get().logs.saveToFile) {
       this.writeToFile(formattedMessage);
     }
   }

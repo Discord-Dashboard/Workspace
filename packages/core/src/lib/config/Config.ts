@@ -84,7 +84,8 @@ class Config {
    * @param configPath The path to the config file.
    */
   private static loadJsOrTsConfig(configPath: string): IConfig {
-    return require(configPath);
+    const configModule = require(configPath);
+    return configModule.default || configModule;
   }
 
   /**
