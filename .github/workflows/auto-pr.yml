@@ -16,16 +16,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Set up GitHub CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install gh
+
       - name: Check if PR exists
         id: pr-check
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           PR_EXISTS=$(gh pr list --base main --head ${GITHUB_REF#refs/heads/} --json number --jq 'length')
           echo "PR_EXISTS=$PR_EXISTS" >> $GITHUB_ENV
 
       - name: Create PR if not exists
         if: env.PR_EXISTS == '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          PR_TITLE="PR from ${GITHUB_REF#refs/heads/} to main"
+          PR_TITLE="Automated PR from ${GITHUB_REF#refs/heads/} to main"
           PR_BODY="This PR was created automatically by GitHub Actions. Changes made in commit ${GITHUB_SHA} by ${GITHUB_ACTOR}."
           
           BASE_BRANCH="main"
