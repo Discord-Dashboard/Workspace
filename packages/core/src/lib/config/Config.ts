@@ -1,4 +1,5 @@
-import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
 import { IConfig, LogLevel } from './IConfig';
 import { Logger } from '@utils/Logger';
 import { ExceptionPriority } from '@utils/exceptions/IExceptionDetails';
@@ -6,23 +7,109 @@ import { ConfigurationException } from '@utils/exceptions/ConfigurationException
 
 class Config {
   private static instance: Config;
-  private readonly envConfig: IConfig;
-  private readonly defaultValues: Partial<IConfig> = {
-    DBD_LOG_FILE: 'discord-dashboard.log', // Default value for log file
-    DBD_LOG_LEVEL: LogLevel.ALL, // Default log level
+  private config: IConfig;
+
+  // Default configuration values
+  protected static readonly defaultValues: IConfig = {
+    server: {
+      port: 3000,
+    },
+    logs: {
+      file: 'discord-dashboard.log',
+      level: LogLevel.ALL,
+    },
   };
 
   private constructor() {
-    dotenv.config();
+    const configPath = Config.getConfigFilePath();
+    if (!configPath) {
+      throw new ConfigurationException('Config file not found.', {
+        priority: ExceptionPriority.CRITICAL,
+      });
+    }
 
-    // Initialize config with environment variables or default values
-    this.envConfig = {
-      DBD_PORT: Number(process.env.DBD_PORT), // Port must be provided
-      DBD_LOG_FILE: process.env.DBD_LOG_FILE || this.defaultValues.DBD_LOG_FILE,
-      DBD_LOG_LEVEL:
-        (process.env.DBD_LOG_LEVEL as LogLevel) ||
-        this.defaultValues.DBD_LOG_LEVEL,
+    this.config = Config.loadConfig(configPath);
+    this.setDefaultValues(this.config);
+  }
+
+  /**
+   * Finds and returns the path to the configuration file (js, ts, json).
+   * Checks files in the working directory.
+   */
+  private static getConfigFilePath(): string | null {
+    const configFiles = [
+      'discord-dashboard.config.json',
+      'discord-dashboard.config.js',
+      'discord-dashboard.config.ts',
+    ];
+    for (const file of configFiles) {
+      const filePath = path.join(process.cwd(), file);
+      if (fs.existsSync(filePath)) {
+        return filePath;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Loads the configuration from JSON, JS, or TS file.
+   */
+  private static loadConfig(configPath: string): IConfig {
+    if (configPath.endsWith('.json')) {
+      return this.loadJsonConfig(configPath);
+    } else if (configPath.endsWith('.js') || configPath.endsWith('.ts')) {
+      return this.loadJsOrTsConfig(configPath);
+    } else {
+      throw new ConfigurationException('Unsupported config file type.', {
+        priority: ExceptionPriority.CRITICAL,
+      });
+    }
+  }
+
+  /**
+   * Loads configuration from a JSON file.
+   */
+  private static loadJsonConfig(configPath: string): IConfig {
+    const rawData = fs.readFileSync(configPath, 'utf8');
+    return JSON.parse(rawData);
+  }
+
+  /**
+   * Loads configuration from a JS or TS file.
+   */
+  private static loadJsOrTsConfig(configPath: string): IConfig {
+    return require(configPath);
+  }
+
+  /**
+   * Merges default values into the configuration if they are missing.
+   */
+  private setDefaultValues(config: IConfig): void {
+    const mergeDefaults = (source: any, defaults: any): void => {
+      Object.keys(defaults).forEach((key) => {
+        if (source[key] === undefined || source[key] === null) {
+          source[key] =
+            typeof defaults[key] === 'object' && defaults[key] !== null
+              ? {} // Set empty object if default is an object
+              : defaults[key]; // Otherwise, set default value
+        } else if (
+          typeof source[key] === 'object' &&
+          source[key] !== null &&
+          typeof defaults[key] === 'object' &&
+          defaults[key] !== null
+        ) {
+          // If both are objects, recursively merge
+          mergeDefaults(source[key], defaults[key]);
+        }
+      });
     };
+
+    // Create a deep copy to avoid mutating the original object
+    const configCopy = JSON.parse(JSON.stringify(config));
+    mergeDefaults(configCopy, Config.defaultValues);
+
+    // Set the final merged configuration
+    this.config = configCopy;
   }
 
   public static getInstance(): Config {
@@ -32,32 +119,74 @@ class Config {
     return Config.instance;
   }
 
-  public get<K extends keyof IConfig>(key: K): IConfig[K] {
-    return this.envConfig[key];
+  /**
+   * Returns the entire configuration.
+   */
+  public get(): IConfig {
+    return this.config;
   }
 
-  public static validateConfig(config: Config) {
-    const allKeys = Object.keys(
-      Config.getInstance().envConfig
-    ) as (keyof IConfig)[];
-    const required = ['DBD_PORT'] as (keyof IConfig)[];
+  /**
+   * Generates all possible paths from the configuration object.
+   */
+  private static getAllPaths(obj: any, parentPath = ''): string[] {
+    let paths: string[] = [];
 
-    // Calculate optional keys by excluding required keys
-    const optional = allKeys.filter((key) => !required.includes(key));
+    for (const key in obj) {
+      const currentPath = parentPath ? `${parentPath}.${key}` : key;
 
-    const missingInEnv: {
-      key: keyof IConfig;
-      defaultValue?: IConfig[keyof IConfig];
-    }[] = [];
-
-    // Check required keys
-    const required_missing: (keyof IConfig)[] = [];
-    for (const option of required) {
-      if (!process.env[option]) {
-        required_missing.push(option);
+      if (typeof obj[key] === 'object' && obj[key] !== null) {
+        // If it's an empty object, add its path
+        if (Object.keys(obj[key]).length === 0) {
+          paths.push(currentPath);
+        }
+        // Recursively add paths from nested objects
+        paths = paths.concat(this.getAllPaths(obj[key], currentPath));
+      } else {
+        paths.push(currentPath);
       }
     }
 
+    return paths;
+  }
+
+  /**
+   * Retrieves the value from the configuration object based on the provided path (e.g., "logs.file").
+   */
+  private static getValueByPath(obj: any, path: string): any {
+    return path.split('.').reduce((acc, part) => {
+      return acc && typeof acc === 'object' ? acc[part] : undefined;
+    }, obj);
+  }
+
+  /**
+   * Validates the configuration, checking for missing required values.
+   */
+  public static validateConfig() {
+    const required: string[] = ['server.port']; // Add more required paths here
+    const required_missing: string[] = [];
+    const missingOptionalValues: string[] = [];
+
+    // Generate all paths from default values
+    const defaultPaths = this.getAllPaths(Config.defaultValues);
+
+    // Load current config from file
+    const currentConfig = Config.loadConfig(Config.getConfigFilePath()!);
+
+    // Check for missing required and optional values
+    for (const defaultPath of defaultPaths) {
+      const configValue = this.getValueByPath(currentConfig, defaultPath);
+
+      if (configValue === undefined || configValue === null) {
+        if (required.includes(defaultPath)) {
+          required_missing.push(defaultPath);
+        } else {
+          missingOptionalValues.push(defaultPath);
+        }
+      }
+    }
+
+    // Throw exception if required values are missing
     if (required_missing.length > 0) {
       throw new ConfigurationException(
         `Missing required config options: ${required_missing.join(', ')}`,
@@ -67,29 +196,23 @@ class Config {
       );
     }
 
-    // Check optional keys
-    for (const option of optional) {
-      if (!process.env[option] && config.defaultValues[option] !== undefined) {
-        missingInEnv.push({
-          key: option,
-          defaultValue: config.defaultValues[option],
-        });
-      }
-    }
-
-    // Log missing optional keys with their default values
-    if (missingInEnv.length > 0) {
-      missingInEnv.forEach(({ key, defaultValue }) => {
-        Logger.log(
-          new ConfigurationException(
-            `Missing optional config option '${key}'. Using default value: ${defaultValue}`,
-            {
-              priority: ExceptionPriority.INFO,
-            }
-          )
-        );
-      });
-    }
+    // Log missing optional values
+    missingOptionalValues.forEach((missingPath) => {
+      const defaultValue = this.getValueByPath(
+        Config.defaultValues,
+        missingPath
+      );
+      Logger.log(
+        new ConfigurationException(
+          `Missing optional config option '${missingPath}'. Using default value: ${JSON.stringify(
+            defaultValue
+          )}`,
+          {
+            priority: ExceptionPriority.INFO,
+          }
+        )
+      );
+    });
   }
 }
 

@@ -10,7 +10,7 @@ class Dashboard {
 
   @HandleExceptions
   private validateConfig() {
-    Config.validateConfig(this.config);
+    Config.validateConfig();
   }
 
   @HandleExceptions
@@ -18,7 +18,7 @@ class Dashboard {
     this.validateConfig();
 
     await this.server.listen({
-      port: this.config.get('DBD_PORT'),
+      port: this.config.get().server.port,
     });
   }
 }

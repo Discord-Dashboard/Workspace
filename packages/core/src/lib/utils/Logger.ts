@@ -52,7 +52,7 @@ export class Logger {
     formattedMessage: string
   ): void {
     // Retrieve the logging level from the configuration
-    const logLevel = Config.getInstance().get('DBD_LOG_LEVEL');
+    const logLevel = Config.getInstance().get().logs.level;
 
     // If the log level is NONE, do not log anything
     if (logLevel === LogLevel.NONE) return;
@@ -86,7 +86,7 @@ export class Logger {
   static writeToFile(logMessage: string): void {
     try {
       fs.appendFile(
-        Config.getInstance().get('DBD_LOG_FILE'),
+        Config.getInstance().get().logs.file,
         logMessage + '\n',
         (err) => {
           if (err) {
