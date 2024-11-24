@@ -26,9 +26,9 @@ module.exports = {
     ],
   },
   output: {
-    filename: 'discord-dashboard.js',
+    filename: 'index.js',
     path: path.resolve(__dirname, 'dist'),
-    library: 'Discord-Dashboard',
+    library: '@discord-dashboard/core',
     libraryTarget: 'umd',
     globalObject: 'this',
     clean: true,

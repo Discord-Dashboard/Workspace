@@ -1,8 +1,8 @@
 import dotenv from 'dotenv'; // Importing dotenv to load environment variables
 import { IConfig, LogLevel } from './IConfig'; // Importing IConfig and LogLevel types
 import { Logger } from '@utils/Logger'; // Importing custom Logger utility
-import { LogicException } from '@utils/exceptions/LogicException'; // Importing custom LogicException
-import { ExceptionPriority } from '@utils/exceptions/IExceptionDetails'; // Importing ExceptionPriority enum
+import { ExceptionPriority } from '@utils/exceptions/IExceptionDetails';
+import { ConfigurationException } from '@utils/exceptions/ConfigurationException'; // Importing ExceptionPriority enum
 
 class Config {
   // Singleton instance of Config
@@ -67,7 +67,7 @@ class Config {
     // Log any missing optional config options
     if (optional_missing.length > 0) {
       Logger.log(
-        new LogicException(
+        new ConfigurationException(
           `Missing optional config options: ${optional_missing.join(', ')}`,
           {
             priority: ExceptionPriority.INFO, // Log level set to INFO for missing optional config options
@@ -84,7 +84,7 @@ class Config {
 
     // If there are missing required config options, throw an error
     if (required_missing.length > 0) {
-      throw new LogicException(
+      throw new ConfigurationException(
         `Missing required config options: ${required_missing.join(', ')}`,
         {
           priority: ExceptionPriority.CRITICAL, // Log level set to CRITICAL for missing required config options

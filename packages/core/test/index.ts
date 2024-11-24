@@ -1,2 +1,4 @@
-import * as L from '@discord-dashboard/core';
-console.log(L);
+import { Dashboard } from '../src';
+
+const dashboard = new Dashboard();
+dashboard.start();
