@@ -2,14 +2,19 @@
   "name": "@discord-dashboard/core",
   "version": "0.0.1",
   "dependencies": {
+    "dotenv": "^16.4.5",
+    "fastify": "^5.1.0",
     "tslib": "^2.3.0"
   },
   "type": "commonjs",
-  "main": "./dist/index.js",
+  "main": "./dist/discord-dashboard.js",
   "typings": "./dist/index.d.ts",
   "private": true,
   "nx": {
     "sourceRoot": "packages/core/src",
     "name": "core"
+  },
+  "devDependencies": {
+    "reflect-metadata": "^0.2.2"
   }
 }

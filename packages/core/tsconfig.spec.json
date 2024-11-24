@@ -1,9 +1,19 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"],
+      "@lib/*": ["src/lib/*"],
+      "@utils/*": ["src/lib/utils/*"],
+      "@config/*": ["src/lib/config/*"]
+    },
     "outDir": "../../dist/out-tsc/packages/core",
-    "module": "commonjs",
-    "types": ["jest", "node"]
+    "types": ["jest", "node", "reflect-metadata"]
   },
   "include": [
     "jest.config.ts",

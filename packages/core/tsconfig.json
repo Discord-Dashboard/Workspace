@@ -1,13 +1,24 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "files": [],
-  "include": [],
-  "references": [
-    {
-      "path": "./tsconfig.lib.json"
-    },
-    {
-      "path": "./tsconfig.spec.json"
+  "extends": "../../tsconfig.base.json",  // Inherit settings from a base config (if you have one)
+  "compilerOptions": {
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "outDir": "./dist",                 // Output directory for compiled files
+    "rootDir": "./src",                 // Root directory of your source files
+    "baseUrl": ".",                     // Base directory for resolving non-relative module names
+    "paths": {
+      "@/*": ["src/*"],
+      "@lib/*": ["src/lib/*"],
+      "@utils/*": ["src/lib/utils/*"],
+      "@config/*": ["src/lib/config/*"]
     }
+  },
+  "include": [
+    "src/**/*.ts"                        // Include all TypeScript files in the src directory
+  ],
+  "exclude": [
+    "node_modules",                      // Exclude the node_modules directory
+    "dist",                              // Exclude the output directory
+    "test/**/*"                          // Exclude test files
   ]
 }

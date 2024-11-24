@@ -1,34 +1,15 @@
 {
   "compilerOptions": {
-    "allowJs": false,
-    "allowSyntheticDefaultImports": true,
-    "composite": true,
-    "declaration": true,
+    "allowJs": true,
+    "target": "ES2020",                // The JavaScript version to compile to
+    "module": "ESNext",                 // Use modern ES module system
+    "moduleResolution": "Node",         // Use Node-style module resolution
+    "strict": true,                     // Enable strict type-checking options
+    "esModuleInterop": true,            // Enable compatibility with CommonJS modules
+    "skipLibCheck": true,               // Skip type checking of declaration files
+    "forceConsistentCasingInFileNames": true, // Ensure file names are case-consistent
+    "declaration": true,                // Generate .d.ts files
     "declarationMap": true,
-    "emitDeclarationOnly": true,
-    "emitDecoratorMetadata": false,
-    "esModuleInterop": true,
-    "experimentalDecorators": false,
-    "forceConsistentCasingInFileNames": true,
-    "importHelpers": true,
-    "incremental": true,
-    "isolatedModules": true,
-    "lib": ["es2022"],
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "noEmitOnError": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitOverride": true,
-    "noImplicitReturns": true,
-    "noUnusedLocals": true,
-    "pretty": true,
-    "removeComments": false,
-    "resolveJsonModule": false,
-    "skipDefaultLibCheck": false,
-    "skipLibCheck": true,
-    "sourceMap": false,
-    "strict": true,
-    "target": "es2022",
-    "verbatimModuleSyntax": false
+    "sourceMap": true                  // Generate source maps for debugging
   }
 }
