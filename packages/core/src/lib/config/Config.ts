@@ -16,7 +16,7 @@ class Config {
     },
     logs: {
       file: 'discord-dashboard.log',
-      level: LogLevel.ALL,
+      level: LogLevel.DEVELOPMENT,
     },
   };
 
@@ -208,7 +208,7 @@ class Config {
             defaultValue
           )}`,
           {
-            priority: ExceptionPriority.INFO,
+            priority: ExceptionPriority.DEVELOPMENT,
           }
         )
       );

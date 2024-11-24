@@ -1,21 +1,24 @@
 /**
  * Enum representing the priority levels of exceptions.
  *
- * - `INFO`: Informational level, typically used for non-critical messages.
- * - `WARNING`: Warning level, used for situations that are not critical but may require attention.
- * - `CRITICAL`: Critical level, indicating a severe issue that should interrupt normal execution.
+ * - `DEVELOPMENT`: Used for development-specific messages, typically not shown in production.
+ * - `INFO`: Informational messages that are not critical but may provide helpful context.
+ * - `WARNING`: Messages that indicate potential issues or situations requiring attention but are not critical.
+ * - `CRITICAL`: Severe issues that should halt execution or require immediate action.
  */
 export enum ExceptionPriority {
-  INFO, // Informational level
-  WARNING, // Warning level
-  CRITICAL, // Critical level
+  DEVELOPMENT, // Development-specific information (usually for debugging purposes)
+  INFO, // Informational level, non-critical messages
+  WARNING, // Warning level, indicating potential issues
+  CRITICAL, // Critical level, indicating severe issues requiring immediate attention
 }
 
 /**
  * Interface defining the structure of exception details.
  *
- * This interface is used to specify additional details about an exception, such as its priority.
+ * This interface specifies the additional details associated with an exception,
+ * including its priority level.
  */
 export default interface IExceptionDetails {
-  priority: ExceptionPriority; // Priority of the exception (INFO, WARNING, CRITICAL)
+  priority: ExceptionPriority; // Priority of the exception (e.g., INFO, WARNING, CRITICAL)
 }

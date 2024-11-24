@@ -60,9 +60,13 @@ export class Logger {
     // Log the exception based on its priority
     switch (priority) {
       case ExceptionPriority.INFO:
-        // Only log INFO if the log level is set to ALL
-        if (logLevel !== LogLevel.ALL) break;
-        console.info(formattedMessage);
+        // Log INFO if the log level is set to ALL, IMPORTANT, or DEVELOPMENT
+        if (
+          logLevel === LogLevel.IMPORTANT ||
+          logLevel === LogLevel.DEVELOPMENT
+        ) {
+          console.info(formattedMessage);
+        }
         break;
 
       case ExceptionPriority.WARNING:
@@ -74,6 +78,13 @@ export class Logger {
       case ExceptionPriority.CRITICAL:
         // Log critical errors
         console.error(formattedMessage);
+        break;
+
+      case ExceptionPriority.DEVELOPMENT:
+        // Only log DEVELOPMENT messages if the log level is DEVELOPMENT or IMPORTANT
+        if (logLevel === LogLevel.DEVELOPMENT) {
+          console.log(formattedMessage); // Or you can use a different format for development logs
+        }
         break;
     }
   }
