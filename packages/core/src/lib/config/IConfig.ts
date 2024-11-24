@@ -25,7 +25,7 @@ export interface IConfig {
   logs?: {
     file?: string; // The name of the log file
     level?: LogLevel; // The log level determining what gets logged (e.g., ALL, IMPORTANT, CRITICAL)
-    saveToFile?: boolean;
+    saveToFile?: boolean; // Whether to save the logs to file
   };
   [key: string]: any;
 }
