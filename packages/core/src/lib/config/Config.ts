@@ -20,6 +20,10 @@ class Config {
     },
   };
 
+  /**
+   * Private constructor to ensure singleton pattern.
+   * Loads and sets the configuration from a file.
+   */
   private constructor() {
     const configPath = Config.getConfigFilePath();
     if (!configPath) {
@@ -33,8 +37,8 @@ class Config {
   }
 
   /**
-   * Finds and returns the path to the configuration file (js, ts, json).
-   * Checks files in the working directory.
+   * Finds and returns the path to the configuration file (JSON, JS, or TS).
+   * Checks for the file in the working directory.
    */
   private static getConfigFilePath(): string | null {
     const configFiles = [
@@ -52,7 +56,7 @@ class Config {
   }
 
   /**
-   * Loads the configuration from JSON, JS, or TS file.
+   * Loads the configuration from JSON, JS, or TS file based on the file extension.
    */
   private static loadConfig(configPath: string): IConfig {
     if (configPath.endsWith('.json')) {
@@ -68,6 +72,7 @@ class Config {
 
   /**
    * Loads configuration from a JSON file.
+   * @param configPath The path to the config file.
    */
   private static loadJsonConfig(configPath: string): IConfig {
     const rawData = fs.readFileSync(configPath, 'utf8');
@@ -76,13 +81,15 @@ class Config {
 
   /**
    * Loads configuration from a JS or TS file.
+   * @param configPath The path to the config file.
    */
   private static loadJsOrTsConfig(configPath: string): IConfig {
     return require(configPath);
   }
 
   /**
-   * Merges default values into the configuration if they are missing.
+   * Merges default configuration values into the provided configuration if they are missing.
+   * Recursively merges nested objects.
    */
   private setDefaultValues(config: IConfig): void {
     const mergeDefaults = (source: any, defaults: any): void => {
@@ -112,6 +119,10 @@ class Config {
     this.config = configCopy;
   }
 
+  /**
+   * Singleton pattern to get the instance of the Config class.
+   * @returns The singleton instance of the Config class.
+   */
   public static getInstance(): Config {
     if (!Config.instance) {
       Config.instance = new Config();
@@ -120,7 +131,8 @@ class Config {
   }
 
   /**
-   * Returns the entire configuration.
+   * Returns the entire configuration object.
+   * @returns The configuration object.
    */
   public get(): IConfig {
     return this.config;
@@ -128,6 +140,10 @@ class Config {
 
   /**
    * Generates all possible paths from the configuration object.
+   * This is used to traverse through nested objects and find all keys in the configuration.
+   * @param obj The configuration object to traverse.
+   * @param parentPath The path to the current object (used in recursion).
+   * @returns An array of paths (keys) in the configuration object.
    */
   private static getAllPaths(obj: any, parentPath = ''): string[] {
     let paths: string[] = [];
@@ -152,6 +168,9 @@ class Config {
 
   /**
    * Retrieves the value from the configuration object based on the provided path (e.g., "logs.file").
+   * @param obj The configuration object.
+   * @param path The path to the value in dot notation (e.g., "server.port").
+   * @returns The value at the specified path.
    */
   private static getValueByPath(obj: any, path: string): any {
     return path.split('.').reduce((acc, part) => {
@@ -160,10 +179,11 @@ class Config {
   }
 
   /**
-   * Validates the configuration, checking for missing required values.
+   * Validates the configuration, checking for missing required values and logs warnings for missing optional values.
+   * @throws {ConfigurationException} If any required configuration options are missing.
    */
   public static validateConfig() {
-    const required: string[] = ['server.port']; // Add more required paths here
+    const required: string[] = ['server.port'];
     const required_missing: string[] = [];
     const missingOptionalValues: string[] = [];
 
