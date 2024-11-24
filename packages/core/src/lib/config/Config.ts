@@ -94,11 +94,15 @@ class Config {
   private setDefaultValues(config: IConfig): void {
     const mergeDefaults = (source: any, defaults: any): void => {
       Object.keys(defaults).forEach((key) => {
+        // If the source key doesn't exist or is null, create the object or assign the default value
         if (source[key] === undefined || source[key] === null) {
-          source[key] =
-            typeof defaults[key] === 'object' && defaults[key] !== null
-              ? {} // Set empty object if default is an object
-              : defaults[key]; // Otherwise, set default value
+          if (typeof defaults[key] === 'object' && defaults[key] !== null) {
+            // Create an empty object if the default is an object
+            source[key] = {};
+          } else {
+            // Otherwise, set the default value
+            source[key] = defaults[key];
+          }
         } else if (
           typeof source[key] === 'object' &&
           source[key] !== null &&
@@ -113,12 +117,25 @@ class Config {
 
     // Create a deep copy to avoid mutating the original object
     const configCopy = JSON.parse(JSON.stringify(config));
+
+    // Ensure that missing top-level sections (like `logs`) are initialized as objects
+    Object.keys(Config.defaultValues).forEach((key) => {
+      if (configCopy[key] === undefined) {
+        if (
+          typeof Config.defaultValues[key] === 'object' &&
+          Config.defaultValues[key] !== null
+        ) {
+          configCopy[key] = {}; // Initialize missing sections like `logs` as an empty object
+        }
+      }
+    });
+
+    // Merge the defaults
     mergeDefaults(configCopy, Config.defaultValues);
 
     // Set the final merged configuration
     this.config = configCopy;
   }
-
   /**
    * Singleton pattern to get the instance of the Config class.
    * @returns The singleton instance of the Config class.
@@ -183,7 +200,7 @@ class Config {
    * @throws {ConfigurationException} If any required configuration options are missing.
    */
   public static validateConfig() {
-    const required: string[] = ['server.port'];
+    const required: string[] = ['server.port']; // List of required fields
     const required_missing: string[] = [];
     const missingOptionalValues: string[] = [];
 
@@ -193,6 +210,24 @@ class Config {
     // Load current config from file
     const currentConfig = Config.loadConfig(Config.getConfigFilePath()!);
 
+    // Check each top-level section for empty objects
+    Object.entries(currentConfig).forEach(([section, value]) => {
+      if (
+        value !== undefined &&
+        typeof value === 'object' &&
+        Object.keys(value).length === 0
+      ) {
+        Logger.log(
+          new ConfigurationException(
+            `Configuration section '${section}' is empty. Some features might be unavailable.`,
+            {
+              priority: ExceptionPriority.WARNING,
+            }
+          )
+        );
+      }
+    });
+
     // Check for missing required and optional values
     for (const defaultPath of defaultPaths) {
       const configValue = this.getValueByPath(currentConfig, defaultPath);
@@ -201,7 +236,18 @@ class Config {
         if (required.includes(defaultPath)) {
           required_missing.push(defaultPath);
         } else {
-          missingOptionalValues.push(defaultPath);
+          // Handle the case where the parent path is missing (e.g., 'logs')
+          const parentPath = defaultPath.split('.').slice(0, -1).join('.');
+          const parentValue = this.getValueByPath(currentConfig, parentPath);
+
+          // If the parent path doesn't exist (undefined), treat child path as missing
+          if (parentValue === undefined || parentValue === null) {
+            // Add the specific missing path (e.g., logs.file) to missingOptionalValues
+            missingOptionalValues.push(defaultPath);
+          } else {
+            // If the parent exists, treat this path as missing optional value
+            missingOptionalValues.push(defaultPath);
+          }
         }
       }
     }

@@ -27,4 +27,5 @@ export interface IConfig {
     file: string; // The name of the log file
     level: LogLevel; // The log level determining what gets logged (e.g., ALL, IMPORTANT, CRITICAL)
   };
+  [key: string]: any;
 }
