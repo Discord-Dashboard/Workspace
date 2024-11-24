@@ -1,0 +1,31 @@
+name: Auto Create PR
+
+on:
+  push:
+    branches:
+      - 'feature/*'
+
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Create PR
+        run: |
+          PR_TITLE="Automated PR"
+          PR_BODY="This PR was created automatically."
+          
+          # Ustawienia dla Twojego repozytorium
+          REPO="Discord-Dashboard/workspace"
+          BASE_BRANCH="main"
+          HEAD_BRANCH="${GITHUB_REF#refs/heads/}"
+          
+          # Użyj GitHub CLI do stworzenia PR
+          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+          gh pr create --base $BASE_BRANCH --head $HEAD_BRANCH --title "$PR_TITLE" --body "$PR_BODY"
