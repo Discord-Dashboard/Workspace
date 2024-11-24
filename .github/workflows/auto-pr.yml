@@ -12,6 +12,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Install GitHub CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install gh
+
       - name: Create PR
         run: |
           PR_TITLE="Automated PR"
@@ -23,5 +28,5 @@ jobs:
           HEAD_BRANCH="${GITHUB_REF#refs/heads/}"
           
           # Użyj GitHub CLI do stworzenia PR
-          gh auth login --with-token < ${{ secrets.GITHUB_TOKEN }}
+          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
           gh pr create --base $BASE_BRANCH --head $HEAD_BRANCH --title "$PR_TITLE" --body "$PR_BODY"
