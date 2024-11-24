@@ -24,7 +24,6 @@ export enum LogLevel {
  */
 export interface IConfig {
   DBD_PORT: number; // The port number for the server
-  DBD_TEST: string; // Test configuration value (optional, used for testing purposes)
-  DBD_LOG_FILE: string; // Path to the log file
-  DBD_LOG_LEVEL: LogLevel; // Log level indicating the types of logs to be recorded
+  DBD_LOG_FILE?: string; // Path to the log file
+  DBD_LOG_LEVEL?: LogLevel; // Log level indicating the types of logs to be recorded
 }
