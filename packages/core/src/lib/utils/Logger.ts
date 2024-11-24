@@ -21,18 +21,18 @@ export class Logger {
 
     // Check if it's a BaseException or regular Error
     if (exception instanceof BaseException) {
-      const priority = exception.details?.priority;
+      const priority = exception.details.priority;
+      const supportUrl = exception.details.supportUrl;
       const message = `[${exception.name}] ${exception.message}`;
       formattedMessage = `[${timestamp}] [${ExceptionPriority[priority]}]: ${message}`;
+      if (supportUrl)
+        formattedMessage += ` | For more details, visit the documentation: ${supportUrl}`;
 
       // Handle logging based on priority for BaseException
       this.handleLogLevel(priority, formattedMessage);
-    } else if (exception instanceof Error) {
-      // For regular errors, we use a default priority level (e.g., INFO)
+    } else {
       const message = `[Error] ${exception.message}`;
       formattedMessage = `[${timestamp}] [INFO]: ${message}`;
-
-      // Log the regular error message
       this.handleLogLevel(ExceptionPriority.INFO, formattedMessage);
     }
 

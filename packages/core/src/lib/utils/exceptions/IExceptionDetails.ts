@@ -21,4 +21,5 @@ export enum ExceptionPriority {
  */
 export default interface IExceptionDetails {
   priority: ExceptionPriority; // Priority of the exception (e.g., INFO, WARNING, CRITICAL)
+  supportUrl?: string;
 }

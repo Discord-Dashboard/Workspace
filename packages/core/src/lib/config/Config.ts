@@ -17,6 +17,7 @@ class Config {
     logs: {
       file: 'discord-dashboard.log',
       level: LogLevel.DEVELOPMENT,
+      saveToFile: true,
     },
   };
 
@@ -26,11 +27,6 @@ class Config {
    */
   private constructor() {
     const configPath = Config.getConfigFilePath();
-    if (!configPath) {
-      throw new ConfigurationException('Config file not found.', {
-        priority: ExceptionPriority.CRITICAL,
-      });
-    }
 
     this.config = Config.loadConfig(configPath);
     this.setDefaultValues(this.config);
@@ -40,7 +36,7 @@ class Config {
    * Finds and returns the path to the configuration file (JSON, JS, or TS).
    * Checks for the file in the working directory.
    */
-  private static getConfigFilePath(): string | null {
+  private static getConfigFilePath(): string {
     const configFiles = [
       'discord-dashboard.config.json',
       'discord-dashboard.config.js',
@@ -52,7 +48,11 @@ class Config {
         return filePath;
       }
     }
-    return null;
+    throw new ConfigurationException('Config file not found.', {
+      priority: ExceptionPriority.CRITICAL,
+      supportUrl:
+        'https://docs.assts.tech/discord-dashboard/troubleshooting/placeholder',
+    });
   }
 
   /**
@@ -258,6 +258,7 @@ class Config {
         `Missing required config options: ${required_missing.join(', ')}`,
         {
           priority: ExceptionPriority.CRITICAL,
+          supportUrl: `https://docs.assts.tech/discord-dashboard/config`,
         }
       );
     }
@@ -270,11 +271,10 @@ class Config {
       );
       Logger.log(
         new ConfigurationException(
-          `Missing optional config option '${missingPath}'. Using default value: ${JSON.stringify(
-            defaultValue
-          )}`,
+          `Missing optional config option '${missingPath}'. Using default value: ${defaultValue}`,
           {
             priority: ExceptionPriority.DEVELOPMENT,
+            supportUrl: `https://docs.assts.tech/discord-dashboard/config?option=${missingPath}`,
           }
         )
       );
