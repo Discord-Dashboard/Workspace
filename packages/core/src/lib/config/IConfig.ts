@@ -22,10 +22,10 @@ export interface IConfig {
   server: {
     port: number; // The port on which the server will run
   };
-  logs: {
-    file: string; // The name of the log file
-    level: LogLevel; // The log level determining what gets logged (e.g., ALL, IMPORTANT, CRITICAL)
-    saveToFile: boolean;
+  logs?: {
+    file?: string; // The name of the log file
+    level?: LogLevel; // The log level determining what gets logged (e.g., ALL, IMPORTANT, CRITICAL)
+    saveToFile?: boolean;
   };
   [key: string]: any;
 }

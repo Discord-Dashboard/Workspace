@@ -37,7 +37,7 @@ export class Logger {
     }
 
     // If saveToFile is true and config option allows it, save the log message to a file
-    if (saveToFile && Config.getInstance().get().logs.saveToFile) {
+    if (saveToFile && Config.getInstance().get().logs!.saveToFile) {
       this.writeToFile(formattedMessage);
     }
   }
@@ -52,7 +52,7 @@ export class Logger {
     formattedMessage: string
   ): void {
     // Retrieve the logging level from the configuration
-    const logLevel = Config.getInstance().get().logs.level;
+    const logLevel = Config.getInstance().get().logs!.level!;
 
     // If the log level is NONE, do not log anything
     if (logLevel === LogLevel.NONE) return;
@@ -97,7 +97,7 @@ export class Logger {
   static writeToFile(logMessage: string): void {
     try {
       fs.appendFile(
-        Config.getInstance().get().logs.file,
+        Config.getInstance().get().logs!.file!,
         logMessage + '\n',
         (err) => {
           if (err) {
