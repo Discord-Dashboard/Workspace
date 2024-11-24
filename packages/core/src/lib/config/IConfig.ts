@@ -1,7 +1,6 @@
 /**
  * Enum representing the log levels for configuring the logging behavior.
  *
- * - `ALL`: Logs all events, including informational messages, warnings, and errors.
  * - `IMPORTANT`: Logs only important events, warnings, and errors.
  * - `CRITICAL`: Logs only critical errors that may halt or impact execution.
  * - `DEVELOPMENT`: Logs additional development-specific information helpful for debugging.
@@ -23,10 +22,10 @@ export interface IConfig {
   server: {
     port: number; // The port on which the server will run
   };
-  logs?: {
-    file?: string; // The name of the log file
-    level?: LogLevel; // The log level determining what gets logged (e.g., ALL, IMPORTANT, CRITICAL)
-    saveToFile?: boolean;
+  logs: {
+    file: string; // The name of the log file
+    level: LogLevel; // The log level determining what gets logged (e.g., ALL, IMPORTANT, CRITICAL)
+    saveToFile: boolean;
   };
   [key: string]: any;
 }
