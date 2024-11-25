@@ -1,6 +1,6 @@
 {
   "name": "@discord-dashboard/core",
-  "version": "0.0.1",
+  "version": "0.0.2-2",
   "dependencies": {
     "dotenv": "^16.4.5",
     "fastify": "^5.1.0",
