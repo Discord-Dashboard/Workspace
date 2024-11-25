@@ -9,7 +9,7 @@
   "type": "commonjs",
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
-  "private": true,
+  "private": false,
   "nx": {
     "sourceRoot": "packages/core/src",
     "name": "core"
