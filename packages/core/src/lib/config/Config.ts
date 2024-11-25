@@ -237,18 +237,7 @@ class Config {
         if (required.includes(defaultPath)) {
           required_missing.push(defaultPath);
         } else {
-          // Handle the case where the parent path is missing (e.g., 'logs')
-          const parentPath = defaultPath.split('.').slice(0, -1).join('.');
-          const parentValue = this.getValueByPath(currentConfig, parentPath);
-
-          // If the parent path doesn't exist (undefined), treat child path as missing
-          if (parentValue === undefined || parentValue === null) {
-            // Add the specific missing path (e.g., logs.file) to missingOptionalValues
-            missingOptionalValues.push(defaultPath);
-          } else {
-            // If the parent exists, treat this path as missing optional value
-            missingOptionalValues.push(defaultPath);
-          }
+          missingOptionalValues.push(defaultPath);
         }
       }
     }

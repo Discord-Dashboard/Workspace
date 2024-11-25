@@ -5,8 +5,8 @@ import Fastify from 'fastify';
 import HandleExceptions from '@utils/HandleExceptions';
 
 class Dashboard {
-  private server = Fastify();
-  private config = Config.getInstance();
+  private readonly server = Fastify();
+  private readonly config = Config.getInstance();
 
   @HandleExceptions
   private validateConfig() {
