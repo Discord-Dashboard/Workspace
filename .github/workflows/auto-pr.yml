@@ -24,8 +24,10 @@ jobs:
       - name: Check if PR exists
         id: pr-check
         run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
           PR_EXISTS=$(gh pr list --base main --head ${GITHUB_REF#refs/heads/} --json number --jq 'length')
           echo "PR_EXISTS=$PR_EXISTS" >> $GITHUB_ENV
+          unset GH_TOKEN
 
       - name: Create PR if not exists
         if: env.PR_EXISTS == '0'
@@ -35,5 +37,7 @@ jobs:
           
           BASE_BRANCH="main"
           HEAD_BRANCH="${GITHUB_REF#refs/heads/}"
-          
+                    
+          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
           gh pr create --base $BASE_BRANCH --head $HEAD_BRANCH --title "$PR_TITLE" --body "$PR_BODY"
+          unset GH_TOKEN
