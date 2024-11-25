@@ -37,7 +37,7 @@ export class Logger {
     }
 
     // If saveToFile is true and config option allows it, save the log message to a file
-    if (saveToFile && Config.getInstance().get().logs!.saveToFile) {
+    if (saveToFile && Config.getInstance().get().logs?.saveToFile) {
       this.writeToFile(formattedMessage);
     }
   }
