@@ -41,8 +41,32 @@ jobs:
         run: npx nx report
         shell: bash
 
+      - uses: nrwl/nx-set-shas@v4
+
+      # Run affected tasks (lint, test, build)
+      - run: yarn nx affected -t lint test build
+
+      - name: Check if tag contains 'beta'
+        id: check_tag
+        run: |
+          if [[ "${GITHUB_REF}" == *beta* ]]; then
+            echo "This is a beta release."
+            echo "is_beta=true" >> $GITHUB_ENV
+          else
+            echo "This is a stable release."
+            echo "is_beta=false" >> $GITHUB_ENV
+          fi
+
+      # Publish packages depending on the tag
       - name: Publish packages
-        run: npx nx release publish
+        run: |
+          if [ "${{ env.is_beta }}" == "true" ]; then
+            echo "Publishing beta version..."
+            npx nx release publish --tag beta
+          else
+            echo "Publishing stable version..."
+            npx nx release publish
+          fi
         shell: bash
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
