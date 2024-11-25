@@ -22,4 +22,4 @@ oco
 ns release version
 ```
 
-then, publish a release on gh: `v*` for latest or `v*beta*` for beta release.
+then, publish a release on gh: `v*` for latest or `v*-*` for beta release.

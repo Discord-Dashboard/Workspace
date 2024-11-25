@@ -46,7 +46,7 @@ jobs:
       # Run affected tasks (lint, test, build)
       - run: yarn nx affected -t lint test build
 
-      - name: Check if tag contains 'beta'
+      - name: Check if tag contains '-'
         id: check_tag
         run: |
           if [[ "${GITHUB_REF}" == *beta* ]]; then
