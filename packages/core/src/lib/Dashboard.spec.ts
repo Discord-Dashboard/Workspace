@@ -9,6 +9,8 @@ jest.mock('@utils/HandleExceptions');
 
 describe('Dashboard Class', () => {
   let dashboard: Dashboard;
+  let listenMock: jest.Mock;
+  let closeMock: jest.Mock;
 
   beforeEach(() => {
     // Clear mocks before each test
@@ -24,16 +26,25 @@ describe('Dashboard Class', () => {
 
     (Config.validateConfig as jest.Mock).mockReturnValue(undefined);
 
-    const listenMock = jest.fn().mockResolvedValue(undefined);
+    listenMock = jest.fn().mockResolvedValue(undefined);
+    closeMock = jest.fn().mockResolvedValue(undefined);
 
     // Properly type the mocked Fastify function
     const mockFastify = Fastify as jest.MockedFunction<typeof Fastify>;
     mockFastify.mockReturnValue({
       listen: listenMock,
-    } as any); // Use 'as any' to bypass strict type checking if necessary
+      close: closeMock,
+    } as any);
 
     // Instantiate Dashboard
     dashboard = new Dashboard();
+  });
+
+  afterEach(async () => {
+    // Clean up resources
+    if (await dashboard['server']) {
+      await dashboard['server'].close();
+    }
   });
 
   test('should validate configuration on start', async () => {
@@ -48,5 +59,20 @@ describe('Dashboard Class', () => {
     expect(dashboard['server'].listen).toHaveBeenCalledWith({
       port: 3000,
     });
+  });
+
+  test('should throw error on invalid configuration', async () => {
+    (Config.validateConfig as jest.Mock).mockImplementation(() => {
+      throw new Error('Invalid config');
+    });
+
+    await expect(dashboard.start()).rejects.toThrow('Invalid config');
+  });
+
+  test('should handle server start failure', async () => {
+    const listenError = new Error('Port in use');
+    listenMock.mockRejectedValue(listenError);
+
+    await expect(dashboard.start()).rejects.toThrow('Port in use');
   });
 });
