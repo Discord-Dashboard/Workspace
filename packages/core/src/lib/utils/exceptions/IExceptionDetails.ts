@@ -17,9 +17,9 @@ export enum ExceptionPriority {
  * Interface defining the structure of exception details.
  *
  * This interface specifies the additional details associated with an exception,
- * including its priority level.
+ * including its priority level and optional support (troubleshooting URL).
  */
 export default interface IExceptionDetails {
   priority: ExceptionPriority; // Priority of the exception (e.g., INFO, WARNING, CRITICAL)
-  supportUrl?: string;
+  supportUrl?: string; // Support troubleshooting URL
 }
